@@ -8,6 +8,44 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { Octokit } from "octokit";
 
+export async function getContributionStats() {
+  try {
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    });
+
+    if (!session?.user) {
+      throw new Error("Unauthorized");
+    }
+
+    const token = await getGithubToken();
+
+    // Get the actual GitHub username from the GitHub API
+    const octokit = new Octokit({ auth: token });
+
+    const { data: user } = await octokit.rest.users.getAuthenticated();
+    const username = user.login;
+
+    const calendar = await fetchUserContribution(token, username);
+
+    if (!calendar) {
+      return null;
+    }
+
+    const contributions = calendar.weeks.flatMap((week: any) =>
+      week.contributionDays.map((day: any) => ({
+        date: day.date,
+        count: day.contributionCount,
+        level: Math.min(4, Math.floor(day.contributionCount / 3)), // Convert to 0-4 scale
+      }))
+    );
+
+    return contributions;
+  } catch (error) {
+    console.error("Error fetching contribution stats:", error);
+    return null;
+  }
+}
 
 export async function getDashboardStats() {
 
@@ -15,7 +53,7 @@ export async function getDashboardStats() {
     const session = await auth.api.getSession({
       headers: await headers(),
     })
- getDashboardStats
+
     if (!session?.user) {
       throw new Error("Unauthorized");
     }
@@ -63,7 +101,6 @@ export async function getDashboardStats() {
 }
 
 
-// return data as [ { name : "feb" , commits :4 , prs : 3, reviews : 2}  ] ;
 export async function getMonthlyActivity() {
   try {
     const session = await auth.api.getSession({
