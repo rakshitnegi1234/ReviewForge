@@ -32,6 +32,7 @@ export async function getContributionStats() {
       return null;
     }
 
+      // flatMAp = flat + map 
     const contributions = calendar.weeks.flatMap((week: any) =>
       week.contributionDays.map((day: any) => ({
         date: day.date,
@@ -46,6 +47,7 @@ export async function getContributionStats() {
     return null;
   }
 }
+
 
 export async function getDashboardStats() {
 
@@ -69,7 +71,13 @@ export async function getDashboardStats() {
     // TODO: FETCH TOTAL CONNECTED REPO FROM DB;
     const totalRepos = 30;
 
+
+
+
     const calendar = await fetchUserContribution(token, user.login);
+
+ 
+
     const totalCommits = calendar?.totalContributions || 0
 
     // Count prs from database or github
@@ -142,6 +150,7 @@ export async function getMonthlyActivity() {
     ];
 
     // Initialize last 6 months
+    
     const now = new Date();
     for (let i = 5; i >= 0; i--) {
       const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
