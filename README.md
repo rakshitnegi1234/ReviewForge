@@ -34,6 +34,63 @@ ReviewForge is an AI-powered GitHub pull request review platform. Users connect 
 
 ## How It Works
 
+## Architecture
+
+```mermaid
+flowchart LR
+  User[User] --> Browser[Browser]
+  Browser --> Next[Next.js App]
+
+  Next --> Auth[Better Auth]
+  Auth --> GitHubOAuth[GitHub OAuth]
+  Auth --> DB[(PostgreSQL)]
+
+  Next --> Prisma[Prisma Client]
+  Prisma --> DB
+
+  Next --> GitHubAPI[GitHub API via Octokit]
+  GitHubAPI --> GitHub[GitHub Repositories]
+
+  GitHub --> Webhook[/GitHub Webhook\n/api/webhooks/github/]
+  Webhook --> Next
+
+  Next --> InngestAPI[/Inngest Endpoint\n/api/inngest/]
+  InngestAPI --> Inngest[Inngest Workers]
+
+  Inngest --> GitHubAPI
+  Inngest --> Pinecone[(Pinecone Vector DB)]
+  Inngest --> Gemini[Google Gemini]
+  Inngest --> DB
+
+  Pinecone --> Inngest
+  Gemini --> Inngest
+  Inngest --> GitHubAPI
+```
+
+## Pull Request Review Sequence
+
+```mermaid
+sequenceDiagram
+  participant U as User
+  participant G as GitHub
+  participant N as Next.js App
+  participant I as Inngest
+  participant P as Pinecone
+  participant A as Gemini AI
+  participant D as PostgreSQL
+
+  U->>G: Open or update pull request
+  G->>N: POST /api/webhooks/github
+  N->>D: Verify connected repository and user token
+  N->>I: Send pr.review.requested event
+  I->>G: Fetch PR title, description, and diff
+  I->>P: Retrieve relevant codebase context
+  I->>A: Generate AI review from diff and context
+  A-->>I: Markdown review
+  I->>G: Post PR comment
+  I->>D: Save review record
+```
+
 ### Repository Connect Flow
 
 1. User signs in with GitHub.
