@@ -38,7 +38,11 @@ const RepositoryPage = () => {
 
   const [searchQuery, setSearchQuery] = useState("");
   
-  const { mutate: connectRepo } = useConnectRepository();
+  const {
+    mutate: connectRepo,
+    isPending: isConnecting,
+    variables: connectingRepo,
+  } = useConnectRepository();
 
   const observerTarget = useRef<HTMLDivElement | null>(null);
 
@@ -130,7 +134,11 @@ const RepositoryPage = () => {
       </div>
 
       <div className="grid gap-4">
-        {filteredRepositories.map((repo: Repository) => (
+        {filteredRepositories.map((repo: Repository) => {
+          const isConnectingRepo =
+            isConnecting && connectingRepo?.githubId === repo.id;
+
+          return (
           <Card key={repo.id} className="transition-shadow hover:shadow-md">
             <CardHeader>
               <div className="flex items-start justify-between gap-4">
@@ -160,10 +168,15 @@ const RepositoryPage = () => {
                   </Button>
                   <Button
                     onClick={() => handleConnect(repo)}
-                    disabled={repo.isConnected}
+                    disabled={repo.isConnected || isConnectingRepo}
                     variant={repo.isConnected ? "outline" : "default"}
                   >
-                    {repo.isConnected ? "Connected" : "Connect"}
+                    {isConnectingRepo && <Spinner />}
+                    {isConnectingRepo
+                      ? "Connecting"
+                      : repo.isConnected
+                        ? "Connected"
+                        : "Connect"}
                   </Button>
                 </div>
               </div>
@@ -187,7 +200,8 @@ const RepositoryPage = () => {
               )}
             </CardContent>
           </Card>
-        ))}
+          );
+        })}
       </div>
 
       {!filteredRepositories.length && (

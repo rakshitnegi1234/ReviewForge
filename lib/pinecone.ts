@@ -4,6 +4,4 @@ export const pinecone = new Pinecone({
   apiKey: process.env.PINECONE_DB_API_KEY!,
 });
 
-export const pineconeIndex = pinecone.index(
-  "codehorse-vector-embeddings-v1"
-);
+export const pineconeIndex = pinecone.index("reviewforge");

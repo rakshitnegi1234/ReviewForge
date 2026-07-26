@@ -45,11 +45,6 @@ export const AppSidebar = () => {
       icon: BookOpen,
     },
     {
-      title: "Subscription",
-      url: "/dashboard/subscription",
-      icon: BookOpen,
-    },
-    {
       title: "Settings",
       url: "/dashboard/settings",
       icon: Settings,
