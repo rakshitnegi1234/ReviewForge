@@ -12,20 +12,34 @@ type ContributionGraphData = {
 }
 
 const ContributionGraph = () => {
+  
   const { theme } = useTheme();
 
   const { data, isLoading } = useQuery<ContributionGraphData>({
     queryKey: ["contribution-stats"],
     queryFn: async () => {
-      const contributions = ((await getContributionStats()) ?? []) as Activity[];
+      const contributions = await getContributionStats();
+
+      if (!contributions) {
+        return {
+          contributions: [],
+          totalContributions: 0,
+        };
+      }
+
+      const totalContributions = contributions.reduce((total, day) => {
+        return total + day.count;
+      }, 0);
 
       return {
         contributions,
-        totalContributions: contributions.reduce((total, day) => total + day.count, 0),
+        totalContributions,
       };
     },
     staleTime: 1000 * 60 * 5,
   });
+
+
 
   if (isLoading) {
     return (

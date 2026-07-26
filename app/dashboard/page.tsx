@@ -99,21 +99,27 @@ const MainPage = () => {
         </CardContent>
       </Card>
 
-      <div className='grid gap-4 md:grid-cols-2'>
-        <Card className='col-span-2 border-border/60 bg-card/95 shadow-sm'>
+      <div className='grid min-w-0 gap-4 md:grid-cols-2'>
+        <Card className='col-span-2 min-w-0 border-border/60 bg-card/95 shadow-sm'>
           <CardHeader className="border-b border-border/50">
             <CardTitle>Activity Overview</CardTitle>
             <CardDescription>Monthly breakdown of commits, PRs, and reviews (last 6 months)</CardDescription>
           </CardHeader>
 
-          <CardContent className="pt-6">
+          <CardContent className="min-w-0 pt-6">
             {isLoadingActivity ? (
               <div className="h-80 w-full flex items-center justify-center">
                 <Spinner />
               </div>
             ) : (
-              <div className='h-80 w-full'>
-                <ResponsiveContainer width={"100%"} height={"100%"}>
+              <div className='h-80 min-w-0 w-full'>
+                <ResponsiveContainer
+                  width="100%"
+                  height="100%"
+                  minWidth={0}
+                  minHeight={320}
+                  initialDimension={{ width: 800, height: 320 }}
+                >
                   <BarChart data={monthlyActivity || []} barGap={8} barCategoryGap="24%" margin={{ top: 8, right: 16, left: 0, bottom: 8 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
                     <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: "var(--muted-foreground)", fontSize: 12 }} />
